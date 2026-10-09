@@ -4,7 +4,8 @@
 #include <dt-bindings/zmk/outputs.h>
 
 /*
- * 6 layer (0..5). Layer 2..5 de dung ZMK Studio tu do gan phim.
+ * 6 layer: 0 Numpad, 1 Media, 2-4 trong (gan bang ZMK Studio), 5 FN.
+ * FN o tren cung (index 5) nen luon de len cac layer khac: giu FN thi cac phim FN luon hoat dong.
  *
  * Thu tu 21 phim trong moi layer (tren xuong, trai sang phai):
  *   ESC  TAB  BSPC FN
@@ -14,11 +15,11 @@
  *   1    2    3    ENTER
  *   0    .
  *
- * FN layer (layer 1):
- *   Hang tren : bootloader | xoa BT | doi USB/BLE | -
+ * FN layer (layer 5, giu phim FN):
+ *   Hang tren : bootloader | chuyen layer (Numpad>Media>L3>L4>L5) | doi USB/BLE | -
  *   Hang 2    : Studio unlock | BT0 | BT1 | BT2
- *   Cac so    : 7..9 / 4..6 / 1..3 = che do LED 7..9 / 4..6 / 1..3
- *   +  = BT3,  ENTER = BT4,  0 = ep dung USB,  '.' = bat/tat layer 2
+ *   '.'       : chuyen che do LED ke tiep (1..9, vong lai)
+ *   +  = BT3,  ENTER = BT4,  0 = ep dung USB,  1 = xoa ghep doi BT
  */
 
 / {
@@ -28,24 +29,12 @@
         default_layer {
             display-name = "Numpad";
             bindings = <
-                &kp ESC    &kp TAB    &kp BSPC   &mo 1
+                &kp ESC    &kp TAB    &kp BSPC   &mo 5
                 &kp KP_NUMLOCK &kp KP_SLASH &kp KP_MULTIPLY &kp KP_MINUS
                 &kp KP_N7  &kp KP_N8  &kp KP_N9
                 &kp KP_N4  &kp KP_N5  &kp KP_N6  &kp KP_PLUS
                 &kp KP_N1  &kp KP_N2  &kp KP_N3  &kp KP_ENTER
                 &kp KP_N0  &kp KP_DOT
-            >;
-        };
-
-        fn_layer {
-            display-name = "FN";
-            bindings = <
-                &bootloader    &bt BT_CLR     &out OUT_TOG   &trans
-                &studio_unlock &bt BT_SEL 0   &bt BT_SEL 1   &bt BT_SEL 2
-                &led_mode 7    &led_mode 8    &led_mode 9
-                &led_mode 4    &led_mode 5    &led_mode 6    &bt BT_SEL 3
-                &led_mode 1    &led_mode 2    &led_mode 3    &bt BT_SEL 4
-                &out OUT_USB   &tog 2
             >;
         };
 
@@ -57,7 +46,7 @@
                 &kp HOME    &kp UP        &kp END
                 &kp LEFT    &kp DOWN      &kp RIGHT    &kp PG_UP
                 &kp INS     &kp DEL       &kp PG_DN    &kp RET
-                &trans      &trans
+                &to 0       &trans
             >;
         };
 
@@ -69,7 +58,7 @@
                 &trans  &trans  &trans
                 &trans  &trans  &trans  &trans
                 &trans  &trans  &trans  &trans
-                &trans  &trans
+                &to 0   &trans
             >;
         };
 
@@ -81,7 +70,7 @@
                 &trans  &trans  &trans
                 &trans  &trans  &trans  &trans
                 &trans  &trans  &trans  &trans
-                &trans  &trans
+                &to 0   &trans
             >;
         };
 
@@ -93,7 +82,19 @@
                 &trans  &trans  &trans
                 &trans  &trans  &trans  &trans
                 &trans  &trans  &trans  &trans
-                &trans  &trans
+                &to 0   &trans
+            >;
+        };
+
+        fn_layer {
+            display-name = "FN";
+            bindings = <
+                &bootloader    &layer_cycle   &out OUT_TOG   &trans
+                &studio_unlock &bt BT_SEL 0   &bt BT_SEL 1   &bt BT_SEL 2
+                &none          &none          &none
+                &none          &none          &none          &bt BT_SEL 3
+                &bt BT_CLR     &none          &none          &bt BT_SEL 4
+                &out OUT_USB   &led_mode 0
             >;
         };
     };

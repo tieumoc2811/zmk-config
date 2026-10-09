@@ -90,10 +90,14 @@ static int on_pressed(struct zmk_behavior_binding *binding,
                       struct zmk_behavior_binding_event event) {
     ARG_UNUSED(event);
 
-    if (binding->param1 < 1 || binding->param1 > 9) {
+    if (binding->param1 > 9) {
         return -EINVAL;
     }
-    cur_mode = (uint8_t)binding->param1;
+    if (binding->param1 == 0) { /* &led_mode 0 : chuyen sang che do ke tiep (1..9, vong lai) */
+        cur_mode = (cur_mode % 9) + 1;
+    } else {
+        cur_mode = (uint8_t)binding->param1;
+    }
     tick = 0;
     k_work_reschedule(&anim_work, K_NO_WAIT);
     return ZMK_BEHAVIOR_OPAQUE;

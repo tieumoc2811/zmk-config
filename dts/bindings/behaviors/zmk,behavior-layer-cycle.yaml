@@ -1,0 +1,10 @@
+description: Chuyen lan luot cac layer trong danh sach
+
+compatible: "zmk,behavior-layer-cycle"
+
+include: zero_param.yaml
+
+properties:
+  cycle-layers:
+    type: uint8-array
+    required: true

@@ -8,7 +8,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/zmk/matrix_transform.h>
-#include <physical_layouts.dtsi>
+#include <physical-layouts.dtsi>
 
 / {
     chosen {
@@ -124,6 +124,13 @@
                 , <&gpio1 7  GPIO_ACTIVE_LOW>
                 , <&gpio1 11 GPIO_ACTIVE_LOW>
                 ;
+        };
+
+        /* &layer_cycle : Numpad -> Media -> L3 -> L4 -> L5 -> Numpad ... (bo qua layer FN) */
+        layer_cycle: layer_cycle {
+            compatible = "zmk,behavior-layer-cycle";
+            #binding-cells = <0>;
+            cycle-layers = [00 01 02 03 04];
         };
     };
 };
