@@ -4,6 +4,7 @@
  * Cot (C0-C6) la output, hang (R0-R6) la input pull-down.
  */
 
+#include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/zmk/matrix_transform.h>
 
 / {
@@ -66,17 +67,17 @@
 
 /*
  * 6 day LED qua 6 transistor PNP (S8550), base active-low (LOW = sang).
- * Dung gpio-hog keo LOW luc khoi dong: cap USB co 5V thi LED sang,
+ * Dung gpio-hog keo chan xuong LOW luc khoi dong: cap USB co 5V thi LED sang,
  * rut cap thi mat nguon LED. Muon dieu khien bang phim thi doi sang gpio-leds.
  */
 &gpio0 {
-    led0_hog { gpio-hog; gpios = <9  GPIO_ACTIVE_LOW>; output-active; };  /* P0.09 */
-    led1_hog { gpio-hog; gpios = <10 GPIO_ACTIVE_LOW>; output-active; };  /* P0.10 */
+    led0_hog { gpio-hog; gpios = <9  GPIO_ACTIVE_HIGH>; output-low; };  /* P0.09 */
+    led1_hog { gpio-hog; gpios = <10 GPIO_ACTIVE_HIGH>; output-low; };  /* P0.10 */
 };
 
 &gpio1 {
-    led2_hog { gpio-hog; gpios = <1  GPIO_ACTIVE_LOW>; output-active; };  /* P1.01 */
-    led3_hog { gpio-hog; gpios = <2  GPIO_ACTIVE_LOW>; output-active; };  /* P1.02 */
-    led4_hog { gpio-hog; gpios = <7  GPIO_ACTIVE_LOW>; output-active; };  /* P1.07 */
-    led5_hog { gpio-hog; gpios = <11 GPIO_ACTIVE_LOW>; output-active; };  /* P1.11 */
+    led2_hog { gpio-hog; gpios = <1  GPIO_ACTIVE_HIGH>; output-low; };  /* P1.01 */
+    led3_hog { gpio-hog; gpios = <2  GPIO_ACTIVE_HIGH>; output-low; };  /* P1.02 */
+    led4_hog { gpio-hog; gpios = <7  GPIO_ACTIVE_HIGH>; output-low; };  /* P1.07 */
+    led5_hog { gpio-hog; gpios = <11 GPIO_ACTIVE_HIGH>; output-low; };  /* P1.11 */
 };
