@@ -1,0 +1,82 @@
+/*
+ * Numpad 21 phim - K21C - Pro Micro nRF52840 (nice!nano v2 compatible)
+ * Ma tran 7x7, KHONG diode (ghosting khi bam nhieu phim).
+ * Cot (C0-C6) la output, hang (R0-R6) la input pull-down.
+ */
+
+#include <dt-bindings/zmk/matrix_transform.h>
+
+/ {
+    chosen {
+        zmk,kscan = &kscan0;
+        zmk,matrix_transform = &default_transform;
+    };
+
+    kscan0: kscan {
+        compatible = "zmk,kscan-gpio-matrix";
+        wakeup-source;
+        diode-direction = "col2row";
+
+        /* C0 .. C6 */
+        col-gpios
+            = <&gpio0 11 GPIO_ACTIVE_HIGH>   /* C0 P0.11 */
+            , <&gpio1 4  GPIO_ACTIVE_HIGH>   /* C1 P1.04 */
+            , <&gpio0 31 GPIO_ACTIVE_HIGH>   /* C2 P0.31 */
+            , <&gpio0 29 GPIO_ACTIVE_HIGH>   /* C3 P0.29 */
+            , <&gpio0 2  GPIO_ACTIVE_HIGH>   /* C4 P0.02 */
+            , <&gpio1 15 GPIO_ACTIVE_HIGH>   /* C5 P1.15 */
+            , <&gpio1 13 GPIO_ACTIVE_HIGH>   /* C6 P1.13 */
+            ;
+
+        /* R0 .. R6 */
+        row-gpios
+            = <&gpio0 6  (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  /* R0 P0.06 */
+            , <&gpio0 8  (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  /* R1 P0.08 */
+            , <&gpio0 17 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  /* R2 P0.17 */
+            , <&gpio0 20 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  /* R3 P0.20 */
+            , <&gpio0 22 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  /* R4 P0.22 */
+            , <&gpio0 24 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  /* R5 P0.24 */
+            , <&gpio1 0  (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>  /* R6 P1.00 */
+            ;
+    };
+
+    /*
+     * Thu tu phim theo bo cuc vat ly (tren xuong, trai sang phai):
+     *   ESC  TAB  BSPC FN
+     *   NUM  /    *    -
+     *   7    8    9
+     *   4    5    6    +
+     *   1    2    3    ENTER
+     *   0    .
+     */
+    default_transform: keymap_transform_0 {
+        compatible = "zmk,matrix-transform";
+        columns = <7>;
+        rows = <7>;
+        map = <
+            RC(4,4) RC(6,4) RC(5,6) RC(4,5)
+            RC(3,0) RC(3,1) RC(3,2) RC(3,3)
+            RC(2,0) RC(2,1) RC(2,2)
+            RC(1,0) RC(1,1) RC(1,2) RC(2,3)
+            RC(0,0) RC(0,1) RC(0,2) RC(0,3)
+            RC(4,1) RC(4,2)
+        >;
+    };
+};
+
+/*
+ * 6 day LED qua 6 transistor PNP (S8550), base active-low (LOW = sang).
+ * Dung gpio-hog keo LOW luc khoi dong: cap USB co 5V thi LED sang,
+ * rut cap thi mat nguon LED. Muon dieu khien bang phim thi doi sang gpio-leds.
+ */
+&gpio0 {
+    led0_hog { gpio-hog; gpios = <9  GPIO_ACTIVE_LOW>; output-active; };  /* P0.09 */
+    led1_hog { gpio-hog; gpios = <10 GPIO_ACTIVE_LOW>; output-active; };  /* P0.10 */
+};
+
+&gpio1 {
+    led2_hog { gpio-hog; gpios = <1  GPIO_ACTIVE_LOW>; output-active; };  /* P1.01 */
+    led3_hog { gpio-hog; gpios = <2  GPIO_ACTIVE_LOW>; output-active; };  /* P1.02 */
+    led4_hog { gpio-hog; gpios = <7  GPIO_ACTIVE_LOW>; output-active; };  /* P1.07 */
+    led5_hog { gpio-hog; gpios = <11 GPIO_ACTIVE_LOW>; output-active; };  /* P1.11 */
+};

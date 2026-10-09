@@ -1,0 +1,6 @@
+if SHIELD_NUMPAD21
+
+config ZMK_KEYBOARD_NAME
+	default "Numpad21"
+
+endif
