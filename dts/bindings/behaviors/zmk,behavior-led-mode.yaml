@@ -1,0 +1,10 @@
+description: Chon che do hieu ung cho 6 day LED (GPIO)
+
+compatible: "zmk,behavior-led-mode"
+
+include: one_param.yaml
+
+properties:
+  leds-gpios:
+    type: phandle-array
+    required: true
