@@ -1,4 +1,6 @@
----
-include:
-  - board: nice_nano//zmk
-    shield: numpad21
+   ---
+   include:
+     - board: nice_nano//zmk
+       shield: numpad21
+       snippet: studio-rpc-usb-uart
+       cmake-args: -DCONFIG_ZMK_STUDIO=y
