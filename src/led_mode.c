@@ -1,6 +1,8 @@
 /*
  * Behavior &led_mode N : chon 1 trong 9 che do hieu ung cho 6 day LED (GPIO, active-low).
  * Chi chay khi co nguon USB (khong co 5V thi LED vo hinh, de tiet kiem pin).
+ * Bao layer: moi khi doi layer (0..4), LED tuong ung (layer 0 -> LED1 ... layer 4 -> LED5)
+ * nhay 3 lan, hieu ung tam ngung roi tiep tuc. Layer FN (giu phim) khong bao.
  */
 
 #define DT_DRV_COMPAT zmk_behavior_led_mode
@@ -12,6 +14,9 @@
 #include <drivers/behavior.h>
 #include <zmk/behavior.h>
 #include <zmk/usb.h>
+#include <zmk/event_manager.h>
+#include <zmk/events/layer_state_changed.h>
+#include <zmk/keymap.h>
 
 #if DT_HAS_COMPAT_STATUS_OKAY(DT_DRV_COMPAT)
 
@@ -21,6 +26,10 @@
 #define TICK_MS 100
 #define IDLE_MS 1000
 #define LED_MASK ((1u << NUM_LEDS) - 1u)
+#define IND_LAYERS 5       /* layer 0..4 duoc bao; layer 5 (FN) bo qua */
+#define BLINK_STEP_MS 150
+#define BLINK_STEPS 6      /* sang-tat x3 */
+#define BOOT_QUIET_MS 3000 /* bo qua su kien layer luc khoi dong */
 
 static const struct gpio_dt_spec leds[] = {LISTIFY(NUM_LEDS, LED_SPEC, (, ), 0)};
 
@@ -28,6 +37,9 @@ static struct k_work_delayable anim_work;
 static uint8_t cur_mode = 2; /* mac dinh: sang het */
 static uint32_t tick;
 static uint32_t rnd = 0x1234ABCDu;
+static int blink_led = -1;
+static uint8_t blink_step;
+static int last_ind;
 
 static const uint8_t burst[8] = {0x0C, 0x1E, 0x3F, 0x33, 0x21, 0x00, 0x00, 0x00};
 
@@ -82,9 +94,49 @@ static void anim_fn(struct k_work *work) {
         return;
     }
 
+    if (blink_led >= 0) {
+        apply((blink_step % 2 == 0) ? (1u << blink_led) : 0);
+        if (++blink_step >= BLINK_STEPS) {
+            blink_led = -1;
+            tick = 0;
+        }
+        k_work_reschedule(&anim_work, K_MSEC(BLINK_STEP_MS));
+        return;
+    }
+
     apply(frame(cur_mode, tick++));
     k_work_reschedule(&anim_work, K_MSEC(TICK_MS));
 }
+
+static int layer_listener(const zmk_event_t *eh) {
+    const struct zmk_layer_state_changed *ev = as_zmk_layer_state_changed(eh);
+
+    if (ev == NULL || ev->layer >= IND_LAYERS || k_uptime_get() < BOOT_QUIET_MS) {
+        return ZMK_EV_EVENT_BUBBLE;
+    }
+
+    int ind = 0;
+    for (int i = IND_LAYERS - 1; i >= 0; i--) {
+        if (zmk_keymap_layer_active(i)) {
+            ind = i;
+            break;
+        }
+    }
+    if (ind == last_ind) {
+        return ZMK_EV_EVENT_BUBBLE;
+    }
+    last_ind = ind;
+
+    if (ind < NUM_LEDS && zmk_usb_get_conn_state() != ZMK_USB_CONN_NONE) {
+        blink_led = ind;
+        blink_step = 0;
+        k_work_reschedule(&anim_work, K_NO_WAIT);
+    }
+    return ZMK_EV_EVENT_BUBBLE;
+}
+
+ZMK_LISTENER(led_layer, layer_listener);
+ZMK_SUBSCRIPTION(led_layer, zmk_layer_state_changed);
 
 static int on_pressed(struct zmk_behavior_binding *binding,
                       struct zmk_behavior_binding_event event) {
